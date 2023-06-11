@@ -6,41 +6,55 @@ import { NavLink } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import ErrorMSG from "./ErrorMSG";
+import API from "../API";
 
 const LoginForm = () => {
-  const [fetchUser, setFetchUser] = useState([]);
+  const [userData, setUserData] = useState({});
   const userList = `https://ivanovitch.pythonanywhere.com/api/user`;
-  const fetchData = async () => {
-    const response = await fetch(userList);
-    if (!response.ok) {
-      throw new Error(response.error);
-      console.log("There is an error");
-    } else {
-      const data = await response.json();
-      setFetchUser(data);
-    }
-  };
   useEffect(() => {
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    const response = await fetch(userList);
+    if (!response.ok) {
+      console.log("There is an error");
+      throw new Error(response.error);
+    } else {
+      const data = await response.json();
+      console.log(data);
+      setUserData(data);
+    }
+  };
+  // const login = userData.map(items =>{
+  //   return items
+  // })
   const formik = useFormik({
     initialValues: {
-      email: "",
+      uname: "",
       password: "",
       remember: false,
     },
     validationSchema: Yup.object({
-      email: Yup.string().email("Invalid email address").required("Required"),
+      uname: Yup.string()
+        .min(3, "user name too short")
+        .max(25, "user name too long")
+        .required("Required"),
       password: Yup.string()
         .min(8, "password be 8 characters or more")
         .required("Required"),
     }),
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
+      if (values.email === "" && values.password === "") {
+        console.log("Login Successfull");
+      } else {
+        console.log("Incorrect email or password");
+      }
       formik.resetForm();
     },
   });
-  console.log(fetchUser);
+  
   return (
     <section className="w-full h-[100vh] bg-[#5DBA63]">
       <NavLink to="/onboarding">
@@ -53,18 +67,18 @@ const LoginForm = () => {
         <h1 className="hero pb-4">Welcome to Eat Now</h1>
         <div className="">
           <div className="flex flex-col">
-            <label htmlFor="email" className="py-2 cursor-pointer">
-              Email
+            <label htmlFor="username" className="py-2 cursor-pointer">
+              User name
             </label>
             <input
-              placeholder="eg: myemail@example.com"
-              type="email"
-              {...formik.getFieldProps("email")}
-              id="email"
+              placeholder="eg: John Doe"
+              type="username"
+              {...formik.getFieldProps("uname")}
+              id="uname"
               className="py-[0.6rem] px-4 border outline-none border-[#5DBA63] rounded-xl"
             />
-            {formik.touched.email && formik.errors.email ? (
-              <ErrorMSG error_value={formik.errors.email} />
+            {formik.touched.uname && formik.errors.uname ? (
+              <ErrorMSG error_value={formik.errors.uname} />
             ) : null}
           </div>
           <div className="flex flex-col">

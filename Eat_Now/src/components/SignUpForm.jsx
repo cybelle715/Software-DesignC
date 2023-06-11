@@ -8,52 +8,63 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 const SignUpForm = () => {
-  const [fetchUser, setFetchUser] = useState([]);
-  const API = `https://ivanovitch.pythonanywhere.com/api/user`;
-
+  const [fetchUser, setFetchUser] = useState({});
+  const userList = `https://ivanovitch.pythonanywhere.com/api/user`;
   useEffect(() => {
-    fetchUserData();
+    // fetchUserData();
   }, []);
 
-  const fetchUserData = async () => {
-    const response = await fetch(API);
-    if (!response.ok) {
-      throw new Error(response.error);
-    } else {
-      const data = await response.json();
-      setFetchUser(data);
-    }
-  };
-  console.log(fetchUser);
+  // const fetchUserData = async () => {
+  //   const response = await fetch(userList);
+  //   if (!response.ok) {
+  //     throw new Error(response.error);
+  //   } else {
+  //     const data = await response.json();
+  //     setFetchUser(data);
+  //   }
+  // };
+  // console.log(fetchUser);
+
   const formik = useFormik({
     initialValues: {
-      username: "",
+      uname: "",
       password: "",
       confirm_password: "",
-      last_login: null,
-      is_superuser: true,
-      first_name: "",
-      last_name: "",
-      email: "",
-      is_staff: true,
-      is_active: true,
-      date_joined: new Date(),
-      acceptedTerms: false,
+      location: "",
+      town: "",
+      picture: "",
+      // last_login: null,
+      // is_superuser: true,
+      // first_name: "",
+      // last_name: "",
+      // email: "",
+      // is_staff: true,
+      // is_active: true,
+      // date_joined: new Date(),
+      // acceptedTerms: false,
     },
     validationSchema: Yup.object({
-      username: Yup.string()
+      uname: Yup.string()
         .min(3, "user name too short")
         .max(25, "user name too long")
         .required("Required"),
-      first_name: Yup.string()
-        .min(3, "first name too short")
-        .max(15, "first name too long")
+      location: Yup.string()
+        .min(3, "location name too short")
+        .max(15, "location name too long")
         .required("Required"),
-      last_name: Yup.string()
-        .min(3, "last name too short")
-        .max(20, "last name too long")
+      town: Yup.string()
+        .min(3, "town name too short")
+        .max(15, "town name too long")
         .required("Required"),
-      email: Yup.string().email("Invalid email address").required("Required"),
+      // first_name: Yup.string()
+      //   .min(3, "first name too short")
+      //   .max(15, "first name too long")
+      //   .required("Required"),
+      // last_name: Yup.string()
+      //   .min(3, "last name too short")
+      //   .max(20, "last name too long")
+      //   .required("Required"),
+      // email: Yup.string().email("Invalid email address").required("Required"),
       password: Yup.string()
         .min(8, "password be 8 characters or more")
         .required("Required"),
@@ -66,33 +77,48 @@ const SignUpForm = () => {
     }),
     onSubmit: (values) => {
       alert(JSON.stringify(values, null, 2));
-      formik.resetForm();
+      // formik.resetForm();
     },
   });
-
+  const path = formik.values.picture.slice(12);
+  const imagePath = `/${path.replace("\\", "")}`;
+  const submitValues = {
+    uname: formik.values.uname,
+    password: formik.values.password,
+    location: formik.values.location,
+    town: formik.values.town,
+    picture: imagePath,
+    verified: false,
+    role: "Normal",
+  };
+  console.log(submitValues.picture);
   const submitForm = async (event) => {
     event.preventDefault();
-    const response = await fetch(API, {
+    const response = await fetch(userList, {
       method: "POST",
+      body: JSON.stringify(submitValues),
+      // last_login: formik.values.last_login,
+      // is_superuser: formik.values.is_superuser,
+      // first_name: formik.values.first_name,
+      // last_name: formik.values.last_name,
+      // email: formik.values.email,
+      // is_staff: formik.values.is_staff,
+      // is_active: formik.values.is_active,
+      // date_joined: formik.values.date_joined,
+      // groups: [],
+      // user_permissions: [],
+      // }),
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": `multipart/form; boundary=${submitValues.picture}`,
         Accept: "application/json",
       },
-      body: JSON.stringify({
-        username: formik.values.username,
-        password: formik.values.password,
-        last_login: formik.values.last_login,
-        is_superuser: formik.values.is_superuser,
-        first_name: formik.values.first_name,
-        last_name: formik.values.last_name,
-        email: formik.values.email,
-        is_staff: formik.values.is_staff,
-        is_active: formik.values.is_active,
-        date_joined: formik.values.date_joined,
-        groups: [],
-        user_permissions: [],
-      }),
     });
+    if (!response.ok) {
+      throw new Error(response.error);
+    } else {
+      const data = await response.json();
+      console.log(data, response);
+    }
   };
 
   return (
@@ -102,7 +128,8 @@ const SignUpForm = () => {
       </NavLink>
       <form
         className="bg-[#F0F4FD] pt-8 pb-32 mt-16 px-4 rounded-t-3xl"
-        onSubmit={formik.handleSubmit}
+        encType="multipart/form-data"
+        // onSubmit={formik.handleSubmit}
       >
         <h1 className="hero pb-4">Welcome to Eat Now</h1>
         <div className="">
@@ -115,13 +142,13 @@ const SignUpForm = () => {
               placeholder="User name"
               id="username"
               className="py-[0.6rem] px-4 border outline-none border-[#5DBA63] rounded-xl"
-              {...formik.getFieldProps("username")}
+              {...formik.getFieldProps("uname")}
             />
-            {formik.touched.username && formik.errors.username ? (
-              <ErrorMSG error_value={formik.errors.username} />
+            {formik.touched.uname && formik.errors.uname ? (
+              <ErrorMSG error_value={formik.errors.uname} />
             ) : null}
           </div>
-          <div className="flex flex-col">
+          {/* <div className="flex flex-col">
             <label htmlFor="first_name" className="py-2 cursor-pointer">
               First name
             </label>
@@ -150,8 +177,8 @@ const SignUpForm = () => {
             {formik.touched.last_name && formik.errors.last_name ? (
               <ErrorMSG error_value={formik.errors.last_name} />
             ) : null}
-          </div>
-          <div className="flex flex-col">
+          </div> */}
+          {/* <div className="flex flex-col">
             <label htmlFor="email" className="py-2 cursor-pointer">
               Email
             </label>
@@ -165,22 +192,38 @@ const SignUpForm = () => {
             {formik.touched.email && formik.errors.email ? (
               <ErrorMSG error_value={formik.errors.email} />
             ) : null}
-          </div>
-          {/* <div className="flex flex-col">
-            <label htmlFor="contact" className="py-2 cursor-pointer">
-              Phone Number
+          </div> */}
+
+          <div className="flex flex-col">
+            <label htmlFor="town" className="py-2 cursor-pointer">
+              Town
             </label>
             <input
-              placeholder="eg: 2368939xxxx"
+              placeholder="eg: malingo"
               type="text"
-              {...formik.getFieldProps("contact")}
+              {...formik.getFieldProps("town")}
+              id="town"
+              className="py-[0.6rem] px-4 border outline-none border-[#5DBA63] rounded-xl"
+            />
+            {formik.touched.town && formik.errors.town ? (
+              <ErrorMSG error_value={formik.errors.town} />
+            ) : null}
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="contact" className="py-2 cursor-pointer">
+              Location
+            </label>
+            <input
+              placeholder="eg:Str 7"
+              type="text"
+              {...formik.getFieldProps("location")}
               id="contact"
               className="py-[0.6rem] px-4 border outline-none border-[#5DBA63] rounded-xl"
             />
-            {formik.touched.contact && formik.errors.contact ? (
-              <ErrorMSG error_value={formik.errors.contact} />
+            {formik.touched.location && formik.errors.location ? (
+              <ErrorMSG error_value={formik.errors.location} />
             ) : null}
-          </div> */}
+          </div>
           <div className="flex flex-col">
             <label htmlFor="password" className="py-2 cursor-pointer">
               Password
@@ -212,6 +255,22 @@ const SignUpForm = () => {
               <ErrorMSG error_value={formik.errors.confirm_password} />
             ) : null}
           </div>
+          <div className="flex flex-col">
+            <label htmlFor="picture" className="py-2 cursor-pointer">
+              upload picture
+            </label>
+            <input
+              placeholder="Re-enter your password"
+              type="file"
+              {...formik.getFieldProps("picture")}
+              id="picture"
+              className="py-[0.6rem] px-4 border outline-none border-[#5DBA63] rounded-xl"
+            />
+            {formik.touched.confirm_password &&
+            formik.errors.confirm_password ? (
+              <ErrorMSG error_value={formik.errors.confirm_password} />
+            ) : null}
+          </div>
           <div className="mt-4">
             <input
               type="checkbox"
@@ -228,7 +287,8 @@ const SignUpForm = () => {
         </div>
         <div className="py-3">
           <button
-            onClick={formik.isSubmitting}
+            type="submit"
+            onClick={submitForm}
             className="w-full py-3 bg-[#5DBA63] text-white rounded-xl"
           >
             Login
