@@ -1,4 +1,4 @@
-#  
+# CEF 476 (SOFTWARE ENGINEERING AND DESIGN)
 ## This Repository contains the various task which are complete towards developing a Food waste management software 
 
 ## features
@@ -12,7 +12,7 @@ install dependencies: cd "project folder" yarn or yarn add
 run server: yarn dev
 ### List of the Various Collaborators includes
 
-### Group 12 Project (FOOD WASTE MANAGEMENT SOFTWARE)
+### Group 12 Project (FOOD SHAZAM AND RECIPE PROPOSAL SYSTEM)
 | NAMES                          | MATRICULE |
 | :----------------------------- | :-------: |
 | DJOUKENG NOUGNING YANNICK IVAN | FE20A030  |
